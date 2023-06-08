@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -29,6 +29,68 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
+
+        const usersCollection = client.db("sportsclub").collection("users");
+
+
+        //user insert database
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+
+
+            const query = { email: user.email }
+            const existsUser = await usersCollection.findOne(query);
+
+            if (existsUser) {
+                return res.send({ message: 'user already exists' })
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        });
+
+        //get all user for manage all user 
+        app.get('/users', async (req, res) => {
+            const result = await usersCollection.find().toArray();
+            res.send(result);
+        });
+
+        //make Admin
+        app.patch('/users/admin/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const filter = { _id: new ObjectId(id) };
+            const updateAdmin = {
+                $set: {
+                    role: 'admin'
+                },
+            };
+
+            const result = await usersCollection.updateOne(filter, updateAdmin);
+            res.send(result);
+
+        });
+
+        //Make instructor
+        app.patch('/users/instructor/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const filter = { _id: new ObjectId(id) };
+            const updateInstructor = {
+                $set: {
+                    role: 'instructor'
+                },
+            };
+
+            const result = await usersCollection.updateOne(filter, updateInstructor);
+            res.send(result);
+
+        })
+
+
+
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
