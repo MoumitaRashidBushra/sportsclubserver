@@ -50,6 +50,7 @@ async function run() {
         await client.connect();
 
         const usersCollection = client.db("sportsclub").collection("users");
+        const classesCollection = client.db("sportsclub").collection("classes");
 
 
         app.post('/jwt', (req, res) => {
@@ -146,6 +147,36 @@ async function run() {
         })
 
 
+
+        //classes Collection
+
+        app.post('/classes', async (req, res) => {
+            const newItem = req.body;
+            const result = await classesCollection.insertOne(newItem)
+            res.send(result);
+        })
+
+
+        app.get('/classes', async (req, res) => {
+            const result = await classesCollection.find().toArray();
+            res.send(result);
+        })
+
+
+        app.patch('/classes/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const filter = { _id: new ObjectId(id) };
+            const updateInstructor = {
+                $set: {
+                    status: 'Approved'
+                },
+            };
+
+            const result = await classesCollection.updateOne(filter, updateInstructor);
+            res.send(result);
+
+        })
 
 
 
