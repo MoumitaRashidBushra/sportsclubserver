@@ -134,13 +134,13 @@ async function run() {
             const user = await usersCollection.findOne(query);
 
             if (user.role === 'admin') {
-                res.send('admin');
+                res.send({ roles: "admin" });
             }
             else if (user.role === 'instructor') {
-                res.send('instructor');
+                res.send({ roles: "instructor" });
             }
             else {
-                res.send('student');
+                res.send({ roles: "student" });
             }
 
         })
