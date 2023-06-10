@@ -155,7 +155,29 @@ async function run() {
 
         })
 
+
+
+
+        //classes Collection
+
+        //add instructor classes in database
+
+        app.post('/classes', async (req, res) => {
+            const newItem = req.body;
+            const result = await classesCollection.insertOne(newItem)
+            res.send(result);
+        })
+
+        //manage all class
+
         app.get('/classes', async (req, res) => {
+            const result = await classesCollection.find().toArray();
+            res.send(result);
+        })
+
+        //show classes page in approved class
+
+        app.get('/showclass', async (req, res) => {
             const email = req.params.email;
             const query = { status: 'Approved' }
             const result = await classesCollection.find(query).toArray();
@@ -164,24 +186,9 @@ async function run() {
 
         })
 
+        //admin approved the class
 
-
-        //classes Collection
-
-        app.post('/classes', async (req, res) => {
-            const newItem = req.body;
-            const result = await classesCollection.insertOne(newItem)
-            res.send(result);
-        })
-
-
-        app.get('/classes', async (req, res) => {
-            const result = await classesCollection.find().toArray();
-            res.send(result);
-        })
-
-
-        app.patch('/classes/:id', async (req, res) => {
+        app.patch('/approved/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id);
             const filter = { _id: new ObjectId(id) };
@@ -195,6 +202,55 @@ async function run() {
             res.send(result);
 
         })
+
+
+        //admin deny the class
+
+        app.patch('/deny/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const filter = { _id: new ObjectId(id) };
+            const updateStatus = {
+                $set: {
+                    status: 'Deny'
+                },
+            };
+
+            const result = await classesCollection.updateOne(filter, updateStatus);
+            res.send(result);
+
+        })
+
+        //feedback
+
+        app.get('/feedback/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await classesCollection.findOne(query);
+            res.send(result);
+
+        })
+
+        //update the feedback
+
+        app.patch('/updatefeedback/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const filter = { _id: new ObjectId(id) };
+            const updateFeedback = req.body;
+            const updateStatus = {
+                $set: {
+                    feedback: updateFeedback.feedback
+                },
+            };
+
+            const result = await classesCollection.updateOne(filter, updateStatus);
+            res.send(result);
+
+        })
+
+
+
 
 
 
