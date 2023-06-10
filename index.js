@@ -279,6 +279,14 @@ async function run() {
             res.send(result);
         });
 
+        //delete
+        app.delete('/select/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await selectClassesCollection.deleteOne(query);
+            res.send(result);
+        })
+
         //payment
         app.get('/payment/:id', async (req, res) => {
             const id = req.params.id;
