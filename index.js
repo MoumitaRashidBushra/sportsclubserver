@@ -51,9 +51,10 @@ async function run() {
 
         const usersCollection = client.db("sportsclub").collection("users");
         const classesCollection = client.db("sportsclub").collection("classes");
+        const selectClassesCollection = client.db("sportsclub").collection("selectClasses");
 
 
-        app.post('/jwt', (req, res) => {
+        app.post('/jwtt', (req, res) => {
             const user = req.body;
             const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10h' })
 
@@ -177,7 +178,7 @@ async function run() {
 
         //show classes page in approved class
 
-        app.get('/showclass', async (req, res) => {
+        app.get('/showclasses', async (req, res) => {
             const email = req.params.email;
             const query = { status: 'Approved' }
             const result = await classesCollection.find(query).toArray();
@@ -249,9 +250,40 @@ async function run() {
 
         })
 
+        //selected class collection 
+
+        //add database in selected class
+
+        app.post('/select', async (req, res) => {
+            const newItem = req.body;
+            const result = await selectClassesCollection.insertOne(newItem)
+            res.send(result);
+        })
+
+        //show my selected class
 
 
+        app.get('/select/:email', async (req, res) => {
+            //verifyJWT,
 
+            const email = req.params.email;
+            console.log(email)
+            const query = {
+                usermail: email
+            }
+
+            const result = await selectClassesCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        //payment
+        app.get('/payment/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await selectClassesCollection.findOne(query);
+            res.send(result);
+
+        })
 
 
         // Send a ping to confirm a successful connection
