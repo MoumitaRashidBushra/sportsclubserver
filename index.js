@@ -119,7 +119,7 @@ async function run() {
         });
 
         //get all user for manage all user 
-        app.get('/users', verifyJWT, async (req, res) => {
+        app.get('/users', async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
         });
@@ -222,7 +222,7 @@ async function run() {
 
         //manage all class
 
-        app.get('/classes', async (req, res) => {
+        app.get('/classes', verifyJWT, async (req, res) => {
             const result = await classesCollection.find().toArray();
             res.send(result);
         })
@@ -319,7 +319,7 @@ async function run() {
 
         //Myclass in instructors
 
-        app.get('/myclass/:email', async (req, res) => {
+        app.get('/myclass/:email', verifyJWT, async (req, res) => {
             //verifyJWT,
 
             const email = req.params.email;
