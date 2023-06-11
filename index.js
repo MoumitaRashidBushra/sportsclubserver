@@ -64,6 +64,42 @@ async function run() {
             res.send({ token })
         })
 
+        //admin verify
+
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            if (user?.role !== 'admin') {
+                return res.status(403).send({ error: true, message: 'forbidden message' });
+            }
+            next();
+        }
+
+        //Instructor verify
+
+        const verifyInstructor = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            if (user?.role !== 'instructor') {
+                return res.status(403).send({ error: true, message: 'forbidden message' });
+            }
+            next();
+        }
+
+        //Student verify
+
+        const verifyStudent = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const user = await usersCollection.findOne(query);
+            if (user?.role !== 'student') {
+                return res.status(403).send({ error: true, message: 'forbidden message' });
+            }
+            next();
+        }
+
 
         //user insert database
         app.post('/users', async (req, res) => {
@@ -149,11 +185,22 @@ async function run() {
             }
 
         })
-
+        //show instructor
         app.get('/instructor', async (req, res) => {
             const email = req.params.email;
             const query = { role: 'instructor' }
             const result = await usersCollection.find(query).toArray();
+            res.send(result);
+
+
+        })
+
+
+        //show instructor in home page
+        app.get('/home', async (req, res) => {
+            const email = req.params.email;
+            const query = { role: 'instructor' }
+            const result = await usersCollection.find(query).limit(6).toArray();
             res.send(result);
 
 
@@ -178,6 +225,18 @@ async function run() {
             const result = await classesCollection.find().toArray();
             res.send(result);
         })
+
+
+        //show home page instructor
+
+        app.get('/home', async (req, res) => {
+            const result = await classesCollection.find().limit(6).toArray();
+            res.send(result);
+        })
+
+
+
+
 
         //show classes page in approved class
 
@@ -279,7 +338,7 @@ async function run() {
             res.send(result);
         });
 
-        //delete
+        //delete my selected class 
         app.delete('/select/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
