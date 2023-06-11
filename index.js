@@ -315,6 +315,25 @@ async function run() {
 
         })
 
+
+        //Myclass in instructors
+
+        app.get('/myclass/:email', async (req, res) => {
+            //verifyJWT,
+
+            const email = req.params.email;
+            console.log(email)
+            const query = {
+                instructorEmail: email
+            }
+
+            const result = await classesCollection.find(query).toArray();
+            res.send(result);
+        });
+
+
+
+
         //selected class collection 
 
         //add database in selected class
