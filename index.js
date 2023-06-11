@@ -118,7 +118,7 @@ async function run() {
         });
 
         //get all user for manage all user 
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyJWT, async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
         });
@@ -229,7 +229,7 @@ async function run() {
 
 
 
-        // popular class
+        // popular class in home
         app.get('/showpopularclasses', async (req, res) => {
             const email = req.params.email;
             const query = { status: 'Approved' }
@@ -427,7 +427,7 @@ async function run() {
         })
 
 
-        app.post('/payments', async (req, res) => {
+        app.post('/payments', verifyJWT, async (req, res) => {
             //verifyJWT,
             const payment = req.body;
             const insertResult = await paymentCollection.insertOne(payment);
