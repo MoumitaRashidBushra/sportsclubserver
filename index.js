@@ -227,14 +227,17 @@ async function run() {
         })
 
 
-        //show home page instructor
 
-        app.get('/home', async (req, res) => {
-            const result = await classesCollection.find().limit(6).toArray();
+
+        // popular class
+        app.get('/showpopularclasses', async (req, res) => {
+            const email = req.params.email;
+            const query = { status: 'Approved' }
+            const result = await classesCollection.find(query).sort({ enrolled: -1 }).limit(6).toArray();
             res.send(result);
+
+
         })
-
-
 
 
 
@@ -380,10 +383,69 @@ async function run() {
             const payment = req.body;
             const insertResult = await paymentCollection.insertOne(payment);
 
+            const query = {
+                _id: new ObjectId(payment.selectedId)
+            };
+
+            const filter = {
+                _id: new ObjectId(payment.classId)
+            };
 
 
-            res.send({ insertResult });
+            const updateDoc = {
+                $inc: {
+                    availableSeats: -1,
+                    enrolled: 1
+                }
+            };
+
+            const updateStatus = await classesCollection.updateOne(filter, updateDoc);
+            const deletedResult = await selectClassesCollection.deleteOne(query);
+
+
+
+            res.send({ insertResult, updateStatus, deletedResult });
         })
+
+
+
+
+        //payment history
+
+        app.get('/payments/:email', async (req, res) => {
+            //verifyJWT,
+
+            const email = req.params.email;
+
+            const query = {
+                email: email
+            }
+
+            const result = await paymentCollection.find(query).sort({ date: -1 }).toArray();
+            res.send(result);
+        });
+
+
+        //enrollClassess
+
+        app.get('/enrolled/:email', async (req, res) => {
+            //verifyJWT,
+
+            const email = req.params.email;
+
+            const query = { email: email }
+
+            const paymentData = await paymentCollection.find(query).toArray();
+            const classes = await classesCollection.find({
+                _id: {
+                    $in: paymentData.map(id => new ObjectId(id.classId))
+                }
+            }).toArray();
+            res.send(classes);
+        });
+
+
+
 
 
         // Send a ping to confirm a successful connection
